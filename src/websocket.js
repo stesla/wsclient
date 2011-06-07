@@ -16,9 +16,10 @@
  */
 
 var events = require('events');
-var helper = require('helper');
 var sys = require('sys');
 var url = require('url');
+
+var helper = require('./helper');
 
 var CONNECTING = 0;
 var OPEN = 1;

@@ -9,7 +9,7 @@
   "dev-dependencies" : ["jezebel", "jslint"],
   "engines": {
     "node": ">=0.4.0"
-  }
+  },
   "main"          : "src/websocket.js",
   "version"       : "0.1.1"
 }

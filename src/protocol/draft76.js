@@ -17,9 +17,10 @@
 
 var crypto = require('crypto');
 var events = require('events');
-var helper = require('helper');
 var sys = require('sys');
 var _ = require('underscore');
+
+var helper = require('../helper');
 
 if (!Buffer.prototype.indexOf) {
   Buffer.prototype.indexOf = function(c) {

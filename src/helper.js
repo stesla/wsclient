@@ -17,7 +17,8 @@
 
 var net = require('net');
 var crypto = require('crypto');
-var draft76 = require('protocol/draft76');
+
+var draft76 = require('./protocol/draft76');
 
 exports.createSocket = function() {
   return new net.Socket();
