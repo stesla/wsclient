@@ -1,11 +1,15 @@
 {
   "name"          : "wsclient",
-  "version"       : "0.1.0",
   "author"        : "Samuel Tesla <samuel.tesla@gmail.com>",
-  "contributors"  : [ ],
-  "dependencies"  : ["underscore"],
+  "description"   : "A WebSocket client",
+  "contributors"  : [],
+  "dependencies"  : {
+    "underscore": "1.1.6"
+  },
   "dev-dependencies" : ["jezebel", "jslint"],
   "engines": {
     "node": ">=0.4.0"
   }
+  "main"          : "src/websocket.js",
+  "version"       : "0.1.1"
 }
