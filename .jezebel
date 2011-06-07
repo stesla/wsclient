@@ -1,0 +1,16 @@
+var sys = require('sys');
+var childProcess = require('child_process');
+
+function jsLintCheck(path) {
+  child = childProcess.exec("./node_modules/jslint/bin/jslint.js " + path, function(error, stdout, stderr) {
+    sys.print("jslint: " + stdout);
+  });
+}
+
+exports.settings = {
+  onChange: function(path) {
+    if (path.match(/.*.js$/)) {
+      jsLintCheck(path);
+    }
+  }
+};

@@ -1,0 +1,11 @@
+{
+  "name"          : "wsclient",
+  "version"       : "0.1.0",
+  "author"        : "Samuel Tesla <samuel.tesla@gmail.com>",
+  "contributors"  : [ ],
+  "dependencies"  : ["underscore"],
+  "dev-dependencies" : ["jezebel", "jslint"],
+  "engines": {
+    "node": ">=0.4.0"
+  }
+}
