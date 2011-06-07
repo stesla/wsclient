@@ -20,7 +20,6 @@ var events = require('events');
 var helper = require('helper');
 var sys = require('sys');
 var _ = require('underscore');
-var HTTPParser = process.binding('http_parser').HTTPParser;
 
 if (!Buffer.prototype.indexOf) {
   Buffer.prototype.indexOf = function(c) {
@@ -46,7 +45,6 @@ if (!Buffer.prototype.indexOf) {
 var Protocol = function() {
   events.EventEmitter.call(this);
   this.connecting = true;
-  this.parser = new HTTPParser('response');
   this.headers = {};
 };
 sys.inherits(Protocol, events.EventEmitter);
