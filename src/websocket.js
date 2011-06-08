@@ -65,10 +65,10 @@ WebSocket.prototype.connect = function() {
   protocol.socket = socket;
   socket.on("connect", function() { protocol.open(self); });
   socket.on("close", function(hadError) { self._doClose(!hadError); });
-  socket.on("error", function(error) { self._doClose(false, error); });
+  socket.on("error", function(error) { self._doError(error); });
   protocol.on("close", function(code, reason) { self._doClose(true, reason, code); });
   protocol.on("closing", function() { self._doClosing(); });
-  protocol.on("error", function(error) { self._doClose(false, error); });
+  protocol.on("error", function(error) { self._doError(error); });
   protocol.on("message", function(data) { self._doMessage(data); });
   protocol.on("open", function() { self._doOpen(); });
   socket.connect(this.port, this.host);
@@ -81,6 +81,11 @@ WebSocket.prototype._doClose = function(wasClean, reason, code) {
 
 WebSocket.prototype._doClosing = function() {
   this.readyState = CLOSING;
+};
+
+WebSocket.prototype._doError = function(error) {
+  this.emit("error", error);
+  this._doClose(false, error);
 };
 
 WebSocket.prototype._doOpen = function() {

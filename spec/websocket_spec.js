@@ -65,11 +65,12 @@ describe("WebSocket", function() {
       spyOn(protocol, 'clientClose');
       spyOn(helper, 'createSocket').andReturn(socket);
       spyOn(helper, 'defaultProtocol').andReturn(protocol);
-      spy = jasmine.createSpyObj("spy", ["open", "message", "close"]);
+      spy = jasmine.createSpyObj("spy", ["open", "message", "close", "error"]);
       ws = new WebSocket("ws://example.com");
       ws.on("close", spy.close);
       ws.on("message", spy.message);
       ws.on("open", spy.open);
+      ws.on("error", spy.error);
     });
 
     it("has a readyState of CONNECTING", function() {
@@ -97,10 +98,10 @@ describe("WebSocket", function() {
         expect(socket.connect).toHaveBeenCalledWith("80", "example.com");
       });
 
-      it("should emit a close event on socket error", function() {
-        var error = new Error("foo");
-        socket.emit("error", error);
-        expect(spy.close).toHaveBeenCalledWith(false, error, undefined);
+      it("should emit an error event then a close event  on socket error", function() {
+        socket.emit("error", "the error");
+        expect(spy.error).toHaveBeenCalledWith("the error");
+        expect(spy.close).toHaveBeenCalledWith(false, "the error", undefined);
       });
 
       it("should emit a close event on socket close", function() {
@@ -113,10 +114,10 @@ describe("WebSocket", function() {
         expect(spy.close).toHaveBeenCalledWith(true, "reason", 42);
       });
 
-      it("should emit a close event if the handshake fails", function() {
-        var error = new Error("foo");
-        protocol.emit("error", error);
-        expect(spy.close).toHaveBeenCalledWith(false, error, undefined);
+      it("should emit an error event then a close event on protocol error", function() {
+        protocol.emit("error", "the error");
+        expect(spy.error).toHaveBeenCalledWith("the error");
+        expect(spy.close).toHaveBeenCalledWith(false, "the error", undefined);
       });
 
       it("should start the handshake once the socket is connects", function() {
