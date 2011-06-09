@@ -74,6 +74,18 @@ WebSocket.prototype.connect = function() {
   socket.connect(this.port, this.host);
 };
 
+WebSocket.prototype.emit = function(type) {
+  try {
+    events.EventEmitter.prototype.emit.apply(this, arguments);
+  } catch (e) {
+    if (type === "error") {
+      throw e
+    } else {
+      this.emit("error", type);
+    }
+  }
+}
+
 WebSocket.prototype._doClose = function(wasClean, reason, code) {
   this.emit("close", wasClean, reason, code);
   this.readyState = CLOSED;

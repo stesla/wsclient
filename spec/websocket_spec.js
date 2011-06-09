@@ -85,6 +85,21 @@ describe("WebSocket", function() {
       expect(process.nextTick).toHaveBeenCalled();
     });
 
+    describe("when errors in callbacks occur", function() {
+      var makeError = function() { throw new Error("boom"); };
+
+      it("should catch all errors in its events and emit an error event", function() {
+        ws.on("foo", makeError);
+        ws.emit("foo");
+        expect(spy.error).toHaveBeenCalled();
+      });
+
+      it("should raise errors thrown from inside error callbacks", function() {
+        ws.on("error", makeError);
+        expect(function() { ws.emit("error"); }).toThrow(new Error("boom"));
+      });
+    });
+
     describe("after connect()", function() {
       beforeEach(function() {
         ws.connect();
