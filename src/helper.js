@@ -35,7 +35,7 @@ exports.generateKey = function() {
   var s = (key * spaces).toString();
   for (; noise > 0; noise--) {
     var pos = Math.floor(Math.random() * s.length + 1);
-    var c = Math.floor(Math.random() * 0x7e)
+    var c = Math.floor(Math.random() * 0x7e) + 0x21;
     c = (c > 0x2f && c < 0x3a) ?
       String.fromCharCode(c + 10) :
       String.fromCharCode(c);
