@@ -72,9 +72,9 @@ Protocol.prototype.sendClientHandshake = function(websocket) {
           "Connection: Upgrade\r\n",
           "Host: " + host + "\r\n",
           "Sec-WebSocket-Key1: " + this.key1 + "\r\n",
-          "Sec-WebSocket-Key2: " + this.key2 + "\r\n",
-          "\r\n" + this.challenge],
+          "Sec-WebSocket-Key2: " + this.key2 + "\r\n\r\n"],
          function(data) { self.socket.write(data, "ascii"); });
+  self.socket.write(this.challenge);
 };
 
 Protocol.prototype.frameInProgress = function() {
@@ -162,7 +162,8 @@ Protocol.prototype.verifyChallengeResponse = function() {
   var response = this.buffer.toString("base64", 0, 16);
   this.buffer = this.buffer.slice(16);
   if (expected !== response) {
-    throw new Error("Incorrect challenge response");
+    console.log(this.key1);
+    throw new Error("Incorrect challenge response, challenge = " + sys.inspect(this.challenge));
   }
 };
 

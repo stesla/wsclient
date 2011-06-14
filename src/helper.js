@@ -60,9 +60,9 @@ exports.generateKey = function() {
 }
 
 exports.generateChallenge = function() {
-  var result = "", i;
+  var result = new Buffer(8), i;
   for (i = 0; i < 8; i++) {
-    result += String.fromCharCode(Math.floor(Math.random() * 255));
+    result[i] = Math.floor(Math.random() * 255);
   }
   return result;
 };
