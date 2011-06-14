@@ -50,8 +50,9 @@ exports.generateKey = function() {
   bytes += String.fromCharCode((key >> 16) & 0xff);
   bytes += String.fromCharCode((key >> 8) & 0xff);
   bytes += String.fromCharCode((key >> 0) & 0xff);
+
   return {
-    toString: function() { return s; },
+    toString: function() { return this.string; },
     bytes: bytes,
     key: key,
     string: s
