@@ -86,12 +86,16 @@ describe("WebSocket", function() {
     });
 
     describe("when errors in callbacks occur", function() {
-      var makeError = function() { throw new Error("boom"); };
+      var error, makeError = function() { throw error; }
+
+      beforeEach(function() {
+        error = new Error("boom");
+      });
 
       it("should catch all errors in its events and emit an error event", function() {
         ws.on("foo", makeError);
         ws.emit("foo");
-        expect(spy.error).toHaveBeenCalled();
+        expect(spy.error).toHaveBeenCalledWith(error);
       });
 
       it("should raise errors thrown from inside error callbacks", function() {

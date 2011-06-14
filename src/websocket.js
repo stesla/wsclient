@@ -81,7 +81,7 @@ WebSocket.prototype.emit = function(type) {
     if (type === "error") {
       throw e
     } else {
-      this.emit("error", type);
+      this.emit("error", e);
     }
   }
 }
