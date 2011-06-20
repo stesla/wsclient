@@ -162,7 +162,6 @@ Protocol.prototype.verifyChallengeResponse = function() {
   var response = this.buffer.toString("base64", 0, 16);
   this.buffer = this.buffer.slice(16);
   if (expected !== response) {
-    console.log(this.key1);
     throw new Error("Incorrect challenge response, challenge = " + sys.inspect(this.challenge));
   }
 };
