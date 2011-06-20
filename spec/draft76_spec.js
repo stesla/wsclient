@@ -79,6 +79,7 @@ describe("draft76.Protocol", function() {
     socket = new events.EventEmitter();
     socket.end = null; spyOn(socket, "end").andCallFake(socketEnd);
     socket.write = null; spyOn(socket, "write").andCallFake(socketSendBytes);
+    socket.writable = true;
     protocol.socket = socket;
     status = 101;
     headers = {
@@ -260,6 +261,12 @@ describe("draft76.Protocol", function() {
       it("emits a close event", function() {
         expect(spy.close).toHaveBeenCalled();
       });
+    });
+
+    it("doesn't write to the socket on clientClose, if the socket isn't writable", function() {
+      socket.writable = false;
+      protocol.clientClose();
+      expect(socket.write).not.toHaveBeenCalled();
     });
 
     describe("after calling clientClose", function() {

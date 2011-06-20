@@ -217,8 +217,10 @@ Protocol.prototype.send = function(data) {
 };
 
 Protocol.prototype.clientClose = function() {
-  this.send = function() {}; /* maybe we should buffer */
-  this.socket.write(new Buffer([0xff, 0x00]));
+  this.send = function() {}; /* TODO: maybe we should buffer */
+  if (this.socket.writable) {
+    this.socket.write(new Buffer([0xff, 0x00]));
+  }
 };
 
 Protocol.prototype.serverClose = function() {
