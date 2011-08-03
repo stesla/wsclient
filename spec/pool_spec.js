@@ -66,7 +66,13 @@ describe("pool", function() {
     expect(spy).toHaveBeenCalledWith("data");
   });
 
-  it("removes listeners");
+  it("removes listeners", function() {
+    var spy = jasmine.createSpy("open");
+    pws.on("open", spy);
+    pws.removeListener("open", spy);
+    ws.emit("open");
+    expect(spy).not.toHaveBeenCalled();
+  });
 
   describe("closing with only one client", function() {
     var spy;

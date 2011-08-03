@@ -45,6 +45,13 @@ Wrapper.prototype.on = function(event, func) {
 };
 Wrapper.prototype.addListener = Wrapper.prototype.on;
 
+Wrapper.prototype.removeListener = function(event, func) {
+  if (event === "close") {
+    this.emitter.removeListener(event, func);
+  }
+  this.socket.removeListener(event, func);
+}
+
 Wrapper.prototype.close = function() {
   var socket = this.socket;
   _.each(this.emitter.listeners("close"), function(func) {
