@@ -15,8 +15,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var events = require('events');
-var helper = require('helper');
 var net = require('net');
 
 //   readonly attribute unsigned long bufferedAmount;

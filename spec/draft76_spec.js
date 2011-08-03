@@ -16,9 +16,6 @@
  */
 
 var Protocol = require("protocol/draft76").Protocol;
-var events = require("events");
-var helper = require("helper");
-var _ = require("underscore");
 
 // SEE ALSO: http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-03
 
