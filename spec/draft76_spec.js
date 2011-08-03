@@ -77,8 +77,10 @@ describe("draft76.Protocol", function() {
     protocol.on("closing", spy.closing);
     sent = new Buffer(0);
     socket = new events.EventEmitter();
-    socket.end = null; spyOn(socket, "end").andCallFake(socketEnd);
-    socket.write = null; spyOn(socket, "write").andCallFake(socketSendBytes);
+    socket.end = jasmine.createSpy("socket.end");
+    socket.end.andCallFake(socketEnd);
+    socket.write = jasmine.createSpy("socket.write")
+    socket.write.andCallFake(socketSendBytes);
     socket.writable = true;
     protocol.socket = socket;
     status = 101;

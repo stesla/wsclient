@@ -59,7 +59,7 @@ describe("WebSocket", function() {
     var socket, spy, ws;
     beforeEach(function() {
       socket = new events.EventEmitter();
-      socket.connect = null; spyOn(socket, 'connect');
+      socket.connect = jasmine.createSpy('socket.connect');
       protocol = helper.defaultProtocol();
       spyOn(protocol, 'open');
       spyOn(protocol, 'clientClose');
