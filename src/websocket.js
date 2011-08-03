@@ -28,7 +28,7 @@ var CLOSED = exports.CLOSED = 3;
 
 var SYNTAX_ERR = new Error("SYNTAX_ERR");
 
-var WebSocket = function(wsurl, protocols) {
+var WebSocket = function(wsurl) {
   events.EventEmitter.call(this);
 
   this.url = this.URL = wsurl;
@@ -113,6 +113,6 @@ WebSocket.prototype.send = function(msg) {
   this.protocol.send(msg);
 };
 
-exports.create = function(wsurl, protocols) {
-  return new WebSocket(wsurl, protocols);
+exports.create = function(wsurl) {
+  return new WebSocket(wsurl);
 }
