@@ -21,10 +21,10 @@ var url = require('url');
 
 var helper = require('./helper');
 
-var CONNECTING = 0;
-var OPEN = 1;
-var CLOSING = 2;
-var CLOSED = 3;
+var CONNECTING = exports.CONNECTING = 0;
+var OPEN = exports.OPEN = 1;
+var CLOSING = exports.CLOSING = 2;
+var CLOSED = exports.CLOSED = 3;
 
 var SYNTAX_ERR = new Error("SYNTAX_ERR");
 
@@ -51,11 +51,6 @@ var WebSocket = function(wsurl, protocols) {
   process.nextTick(function() { self.connect(); });
 };
 sys.inherits(WebSocket, events.EventEmitter);
-
-Object.defineProperty(WebSocket, 'CONNECTING', {value: CONNECTING});
-Object.defineProperty(WebSocket, 'OPEN', {value: OPEN});
-Object.defineProperty(WebSocket, 'CLOSING', {value: CLOSING});
-Object.defineProperty(WebSocket, 'CLOSED', {value: CLOSED});
 
 WebSocket.prototype.connect = function() {
   var self = this;
@@ -118,4 +113,6 @@ WebSocket.prototype.send = function(msg) {
   this.protocol.send(msg);
 };
 
-exports.WebSocket = WebSocket;
+exports.create = function(wsurl, protocols) {
+  return new WebSocket(wsurl, protocols);
+}
