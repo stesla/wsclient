@@ -6,5 +6,4 @@ require.paths.unshift(path.join(specDir, "../src"));
 _ = require("underscore");
 events = require("events");
 helper = require("helper");
-websocket = require("websocket");
 wsclient = require('index');
