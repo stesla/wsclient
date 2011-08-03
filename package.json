@@ -6,7 +6,6 @@
   "dependencies"  : {
     "underscore": "1.1.6"
   },
-  "dev-dependencies" : ["jezebel", "jslint"],
   "engines": {
     "node": ">=0.4.0"
   },

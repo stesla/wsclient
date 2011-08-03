@@ -1,3 +1,0 @@
-#!/bin/sh
-
-/usr/bin/env NODE_PATH=src ./node_modules/jezebel/bin/jezebel
