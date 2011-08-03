@@ -18,12 +18,11 @@
 var events = require('events');
 var helper = require('helper');
 var net = require('net');
-var websocket = require('websocket');
 
 //   readonly attribute unsigned long bufferedAmount;
 //   void close(in optional unsigned long code, in optional DOMString reason);
 
-describe("WebSocket", function() {
+describe("wsclient.create", function() {
   beforeEach(function() {
     spyOn(process, 'nextTick');
   });
@@ -31,27 +30,27 @@ describe("WebSocket", function() {
   describe("contructor", function() {
     var ws;
     it("should accept ws as a valid URL scheme", function() {
-      expect(function() {ws = websocket.create("ws://example.com"); }).not.toThrow("SYNTAX_ERR");
+      expect(function() {ws = wsclient.create("ws://example.com"); }).not.toThrow("SYNTAX_ERR");
       expect(ws.port).toBe("80");
       expect(ws.defaultPort).toBe("80");
     });
 
     it("should accept wss as a valid URL scheme", function() {
-      expect(function() {ws = websocket.create("wss://example.com"); }).not.toThrow("SYNTAX_ERR");
+      expect(function() {ws = wsclient.create("wss://example.com"); }).not.toThrow("SYNTAX_ERR");
       expect(ws.port).toBe("443");
       expect(ws.defaultPort).toBe("443");
     });
 
     it("should accept port numbers", function() {
-      expect(function() {ws = websocket.create("ws://example.com:8080"); }).not.toThrow("SYNTAX_ERR");
+      expect(function() {ws = wsclient.create("ws://example.com:8080"); }).not.toThrow("SYNTAX_ERR");
       expect(ws.port).toBe("8080");
       expect(ws.defaultPort).toBe("80");
     });
 
     it("should not accept anything except ws or wss as a valid URL scheme", function() {
-      expect(function() {ws = websocket.create("http://example.com"); }).toThrow("SYNTAX_ERR");
-      expect(function() {ws = websocket.create("ftp://example.com"); }).toThrow("SYNTAX_ERR");
-      expect(function() {ws = websocket.create("foo://example.com"); }).toThrow("SYNTAX_ERR");
+      expect(function() {ws = wsclient.create("http://example.com"); }).toThrow("SYNTAX_ERR");
+      expect(function() {ws = wsclient.create("ftp://example.com"); }).toThrow("SYNTAX_ERR");
+      expect(function() {ws = wsclient.create("foo://example.com"); }).toThrow("SYNTAX_ERR");
     });
   });
 
@@ -66,7 +65,7 @@ describe("WebSocket", function() {
       spyOn(helper, 'createSocket').andReturn(socket);
       spyOn(helper, 'defaultProtocol').andReturn(protocol);
       spy = jasmine.createSpyObj("spy", ["open", "message", "close", "error"]);
-      ws = websocket.create("ws://example.com");
+      ws = wsclient.create("ws://example.com");
       ws.on("close", spy.close);
       ws.on("message", spy.message);
       ws.on("open", spy.open);
@@ -74,7 +73,7 @@ describe("WebSocket", function() {
     });
 
     it("has a readyState of CONNECTING", function() {
-      expect(ws.readyState).toEqual(websocket.CONNECTING);
+      expect(ws.readyState).toEqual(wsclient.CONNECTING);
     });
 
     it("has an url attribute with the URL used to create it", function() {
@@ -157,37 +156,37 @@ describe("WebSocket", function() {
 
       it("should have a readyState of OPEN after the handshake", function() {
         protocol.emit("open");
-        expect(ws.readyState).toEqual(websocket.OPEN);
+        expect(ws.readyState).toEqual(wsclient.OPEN);
       });
 
       it("should have a readyState of CLOSING after it receives the closing handshake", function() {
         protocol.emit("closing");
-        expect(ws.readyState).toEqual(websocket.CLOSING);
+        expect(ws.readyState).toEqual(wsclient.CLOSING);
       });
 
       it("should have a readyState of CLOSING after close() is called", function() {
         ws.close();
-        expect(ws.readyState).toEqual(websocket.CLOSING);
+        expect(ws.readyState).toEqual(wsclient.CLOSING);
       });
 
       it("should have a readyState of CLOSED after the socket closes", function() {
         socket.emit("close");
-        expect(ws.readyState).toEqual(websocket.CLOSED);
+        expect(ws.readyState).toEqual(wsclient.CLOSED);
       });
 
       it("should have a readyState of CLOSED after the socket errors", function() {
         socket.emit("error");
-        expect(ws.readyState).toEqual(websocket.CLOSED);
+        expect(ws.readyState).toEqual(wsclient.CLOSED);
       });
 
       it("should have a readyState of CLOSED after the protocol closes", function() {
         protocol.emit("close");
-        expect(ws.readyState).toEqual(websocket.CLOSED);
+        expect(ws.readyState).toEqual(wsclient.CLOSED);
       });
 
       it("should have a readyState of CLOSED after the protocol errors", function() {
         protocol.emit("error");
-        expect(ws.readyState).toEqual(websocket.CLOSED);
+        expect(ws.readyState).toEqual(wsclient.CLOSED);
       });
 
       it("should start the closing handshake when close() is called", function() {

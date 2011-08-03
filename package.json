@@ -9,6 +9,6 @@
   "engines": {
     "node": ">=0.4.0"
   },
-  "main"          : "src/websocket.js",
+  "main"          : "src/index.js",
   "version"       : "0.1.6"
 }
