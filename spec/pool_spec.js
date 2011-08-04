@@ -88,6 +88,10 @@ describe("pool", function() {
 
     it("emits a close event", function() {
       expect(spy).toHaveBeenCalled();
+    })
+
+    it("emits only one close event", function() {
+      expect(spy.callCount).toBe(1);
     });
   });
 

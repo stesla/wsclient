@@ -1,4 +1,5 @@
 var events = require("events");
+var sys = require("sys");
 var websocket = require("./websocket");
 var _ = require("underscore");
 
@@ -31,34 +32,22 @@ PooledSocket.prototype.open = function() {
   this.count++;
 };
 
-
 function Wrapper(socket) {
-  this.socket = socket;
-  this.emitter = new events.EventEmitter();
+  var self = this;
+  events.EventEmitter.call(self);
+  self.socket = socket;
+  self.onClose = function(wasClean, reason, code) { self.emit("close", wasClean, reason, code); };
+  socket.on("close", this.onClose);
+  socket.on("error", function(error) { self.emit("error", error); });
+  socket.on("open", function() { self.emit("open"); });
+  socket.on("message", function(data) { self.emit("message", data); });
 }
-
-Wrapper.prototype.on = function(event, func) {
-  if (event === "close") {
-    this.emitter.on("close", func);
-  }
-  this.socket.on(event, func);
-};
-Wrapper.prototype.addListener = Wrapper.prototype.on;
-
-Wrapper.prototype.removeListener = function(event, func) {
-  if (event === "close") {
-    this.emitter.removeListener(event, func);
-  }
-  this.socket.removeListener(event, func);
-}
+sys.inherits(Wrapper, events.EventEmitter);
 
 Wrapper.prototype.close = function() {
-  var socket = this.socket;
-  _.each(this.emitter.listeners("close"), function(func) {
-    socket.removeListener("close", func);
-  });
-  socket.close();
-  this.emitter.emit("close");
+  this.socket.removeListener("close", this.onClose);
+  this.socket.close();
+  this.emit("close");
 }
 
 function Pool() {
