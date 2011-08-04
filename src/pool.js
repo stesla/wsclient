@@ -8,7 +8,7 @@ function PooledSocket(wsurl) {
   this.wsurl = wsurl;
 }
 
-_.each(["on", "addListener", "removeListener"], function(method) {
+_.each(_.functions(events.EventEmitter.prototype), function(method) {
   PooledSocket.prototype[method] = function() {
     this.ws[method].apply(this.ws, arguments);
   }
@@ -32,6 +32,10 @@ PooledSocket.prototype.open = function() {
   this.count++;
 };
 
+PooledSocket.prototype.send = function(msg) {
+  this.ws.send(msg);
+}
+
 function Wrapper(socket) {
   var self = this;
   events.EventEmitter.call(self);
@@ -49,6 +53,11 @@ Wrapper.prototype.close = function() {
   this.socket.close();
   this.emit("close");
 }
+
+Wrapper.prototype.send = function(msg) {
+  this.socket.send(msg);
+}
+
 
 function Pool() {
   this.sockets = {};
