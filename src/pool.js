@@ -3,39 +3,6 @@ var sys = require("sys");
 var websocket = require("./websocket");
 var _ = require("underscore");
 
-function PooledSocket(wsurl) {
-  this.count = 0;
-  this.wsurl = wsurl;
-}
-
-_.each(_.functions(events.EventEmitter.prototype), function(method) {
-  PooledSocket.prototype[method] = function() {
-    this.ws[method].apply(this.ws, arguments);
-  }
-});
-
-PooledSocket.prototype.isEmpty = function() {
-  return this.count === 0;
-};
-
-PooledSocket.prototype.close = function() { 
-  this.count--;
-  if (this.isEmpty()) {
-    this.ws.close();
-  }
-};
-
-PooledSocket.prototype.open = function() {
-  if (this.isEmpty()) {
-    this.ws = websocket.create(this.wsurl);
-  }
-  this.count++;
-};
-
-PooledSocket.prototype.send = function(msg) {
-  this.ws.send(msg);
-}
-
 function Wrapper(socket) {
   var self = this;
   events.EventEmitter.call(self);
@@ -58,15 +25,27 @@ Wrapper.prototype.send = function(msg) {
   this.socket.send(msg);
 }
 
-
 function Pool() {
   this.sockets = {};
 }
 
+function pooledSocket(socket) {
+  var count = 0;
+  socket.addRef = function() { count++; };
+  socket.close = _.wrap(_.bind(socket.close, socket), function(f) {
+    count--;
+    if (count === 0) { f(); }
+  });
+  return socket;
+}
+
 Pool.prototype.create = function(wsurl) {
-  this.sockets[wsurl] = this.sockets[wsurl] || new PooledSocket(wsurl);
-  this.sockets[wsurl].open();
-  return new Wrapper(this.sockets[wsurl]);
+  var socket = this.sockets[wsurl];
+  if (!socket) {
+    this.sockets[wsurl] = socket = pooledSocket(websocket.create(wsurl));
+  }
+  socket.addRef();
+  return new Wrapper(socket);
 }
 
 exports.createPool = function() {

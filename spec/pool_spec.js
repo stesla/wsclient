@@ -16,10 +16,10 @@
  */
 
 describe("pool", function() {
-  var pool, pws, ws;
+  var pool, pws, ws, closeSpy;
   beforeEach(function() {
     ws = new events.EventEmitter();
-    ws.close = jasmine.createSpy("ws.close").andCallFake(function() {
+    ws.close = closeSpy = jasmine.createSpy("ws.close").andCallFake(function() {
       ws.emit("close");
     });
     ws.send = jasmine.createSpy("ws.send");
@@ -89,7 +89,7 @@ describe("pool", function() {
     });
 
     it("closes the websocket", function() {
-      expect(ws.close).toHaveBeenCalled();
+      expect(closeSpy).toHaveBeenCalled();
     });
 
     it("emits a close event", function() {
@@ -113,7 +113,7 @@ describe("pool", function() {
     });
 
     it("does not close the websocket", function() {
-      expect(ws.close).not.toHaveBeenCalled();
+      expect(closeSpy).not.toHaveBeenCalled();
     });
 
     it("emits a close event to the sender", function() {
