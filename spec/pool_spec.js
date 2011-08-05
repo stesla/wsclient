@@ -16,13 +16,13 @@
  */
 
 describe("pool", function() {
-  var pool, pws, ws, closeSpy;
+  var pool, pws, ws, closeSpy, sendSpy;
   beforeEach(function() {
     ws = new events.EventEmitter();
     ws.close = closeSpy = jasmine.createSpy("ws.close").andCallFake(function() {
       ws.emit("close");
     });
-    ws.send = jasmine.createSpy("ws.send");
+    ws.send = sendSpy = jasmine.createSpy("ws.send");
     spyOn(wsclient, "create").andReturn(ws);
     pool = wsclient.createPool();
     pws = pool.create("ws://example.com");
@@ -77,7 +77,7 @@ describe("pool", function() {
 
   it("sends data", function() {
     pws.send("foo");
-    expect(ws.send).toHaveBeenCalled();
+    expect(sendSpy).toHaveBeenCalled();
   });
 
   describe("closing with only one client", function() {

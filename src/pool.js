@@ -3,32 +3,6 @@ var sys = require("sys");
 var websocket = require("./websocket");
 var _ = require("underscore");
 
-function Wrapper(socket) {
-  var self = this;
-  events.EventEmitter.call(self);
-  self.socket = socket;
-  self.onClose = function(wasClean, reason, code) { self.emit("close", wasClean, reason, code); };
-  socket.on("close", this.onClose);
-  socket.on("error", function(error) { self.emit("error", error); });
-  socket.on("open", function() { self.emit("open"); });
-  socket.on("message", function(data) { self.emit("message", data); });
-}
-sys.inherits(Wrapper, events.EventEmitter);
-
-Wrapper.prototype.close = function() {
-  this.socket.removeListener("close", this.onClose);
-  this.socket.close();
-  this.emit("close");
-}
-
-Wrapper.prototype.send = function(msg) {
-  this.socket.send(msg);
-}
-
-function Pool() {
-  this.sockets = {};
-}
-
 function pooledSocket(socket) {
   var count = 0;
   socket.addRef = function() { count++; };
@@ -39,13 +13,39 @@ function pooledSocket(socket) {
   return socket;
 }
 
+function wrap(socket) {
+  function wrapper() {};
+  wrapper.prototype = socket;
+  var wrapped = new wrapper();
+  var emitter = new events.EventEmitter();
+  _.each(["on", "addListener", "removeListener", "removeAllListeners"], function(m) {
+    wrapped[m] = _.wrap(socket[m], function(f, e) {
+      var args = _.toArray(arguments).slice(1);
+      if (e === "close") { emitter[m].apply(emitter, args); }
+      f.apply(socket, args);
+    });
+  });
+  wrapped.close = _.wrap(socket.close, function(f) {
+    _.each(emitter.listeners("close"), function(g) {
+      socket.removeListener("close", g);
+    });
+    f();
+    emitter.emit("close");
+  })
+  return wrapped;
+}
+
+function Pool() {
+  this.sockets = {};
+}
+
 Pool.prototype.create = function(wsurl) {
   var socket = this.sockets[wsurl];
   if (!socket) {
     this.sockets[wsurl] = socket = pooledSocket(websocket.create(wsurl));
   }
   socket.addRef();
-  return new Wrapper(socket);
+  return wrap(socket);
 }
 
 exports.createPool = function() {
