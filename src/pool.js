@@ -14,25 +14,26 @@ function pooledSocket(socket) {
 }
 
 function wrap(socket) {
-  function wrapper() {};
+  function wrapper() {
+    var self = this;
+    self.emitter = new events.EventEmitter();
+    _.each(["on", "addListener", "removeListener", "removeAllListeners"], function(m) {
+      self[m] = _.wrap(socket[m], function(f, e) {
+        var args = _.toArray(arguments).slice(1);
+        if (e === "close") { self.emitter[m].apply(self.emitter, args); }
+        f.apply(socket, args);
+      });
+    });
+    self.close = _.wrap(socket.close, function(f) {
+      _.each(self.emitter.listeners("close"), function(g) {
+        socket.removeListener("close", g);
+      });
+      f.apply(socket, []);
+      self.emitter.emit("close");
+    })
+  };
   wrapper.prototype = socket;
-  var wrapped = new wrapper();
-  var emitter = new events.EventEmitter();
-  _.each(["on", "addListener", "removeListener", "removeAllListeners"], function(m) {
-    wrapped[m] = _.wrap(socket[m], function(f, e) {
-      var args = _.toArray(arguments).slice(1);
-      if (e === "close") { emitter[m].apply(emitter, args); }
-      f.apply(socket, args);
-    });
-  });
-  wrapped.close = _.wrap(socket.close, function(f) {
-    _.each(emitter.listeners("close"), function(g) {
-      socket.removeListener("close", g);
-    });
-    f();
-    emitter.emit("close");
-  })
-  return wrapped;
+  return new wrapper();
 }
 
 function Pool() {
