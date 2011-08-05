@@ -39,39 +39,18 @@ describe("pool", function() {
     expect(wsclient.create).not.toHaveBeenCalled();
   });
 
-  it("emits open events", function() {
-    var spy = jasmine.createSpy("open");
-    pws.on("open", spy);
-    ws.emit("open");
-    expect(spy).toHaveBeenCalled();
-  });
-
-  it("emits close events", function() {
-    var spy = jasmine.createSpy("close");
-    pws.on("close", spy);
-    ws.emit("close");
-    expect(spy).toHaveBeenCalled();
-  });
-
-  it("emits error events", function() {
-    var spy = jasmine.createSpy("error");
-    pws.on("error", spy);
-    ws.emit("error", "error");
-    expect(spy).toHaveBeenCalledWith("error");
-  });
-
-  it("emits message events", function() {
-    var spy = jasmine.createSpy("message");
-    pws.on("message", spy);
-    ws.emit("message", "data");
-    expect(spy).toHaveBeenCalledWith("data");
+  it("emits events", function() {
+    var spy = jasmine.createSpy("listener");
+    pws.on("foo", spy);
+    ws.emit("foo", "bar");
+    expect(spy).toHaveBeenCalledWith("bar");
   });
 
   it("removes listeners", function() {
-    var spy = jasmine.createSpy("open");
-    pws.on("open", spy);
-    pws.removeListener("open", spy);
-    ws.emit("open");
+    var spy = jasmine.createSpy("listener");
+    pws.on("bar", spy);
+    pws.removeListener("bar", spy);
+    ws.emit("bar");
     expect(spy).not.toHaveBeenCalled();
   });
 
