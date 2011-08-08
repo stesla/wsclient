@@ -22,7 +22,11 @@ describe("pool", function() {
     ws.close = closeSpy = jasmine.createSpy("ws.close").andCallFake(function() {
       ws.emit("close");
     });
-    ws.send = sendSpy = jasmine.createSpy("ws.send");
+    sendSpy = jasmine.createSpy("ws.send");
+    ws.send = function(msg) {
+      expect(this).toBe(ws);
+      sendSpy(msg);
+    };
     spyOn(wsclient, "create").andReturn(ws);
     pool = wsclient.createPool();
     pws = pool.create("ws://example.com");
