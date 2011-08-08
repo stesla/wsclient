@@ -16,7 +16,7 @@ function wrap(socket) {
   function wrapper() {
     var self = this;
     self.emitter = new events.EventEmitter();
-    _.each(["on", "addListener", "removeListener", "removeAllListeners"], function(m) {
+    _.each(_.functions(events.EventEmitter.prototype), function(m) {
       self[m] = _.wrap(socket[m], function(f, e) {
         var args = _.toArray(arguments).slice(1);
         if (e === "close") { self.emitter[m].apply(self.emitter, args); }
