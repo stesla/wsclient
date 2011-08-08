@@ -113,6 +113,4 @@ WebSocket.prototype.send = function(msg) {
   this.protocol.send(msg);
 };
 
-exports.create = function(wsurl) {
-  return new WebSocket(wsurl);
-}
+exports.WebSocket = WebSocket;

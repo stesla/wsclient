@@ -1,6 +1,5 @@
 var events = require("events");
 var sys = require("sys");
-var websocket = require("./websocket");
 var _ = require("underscore");
 
 function pooledSocket(socket) {
@@ -36,19 +35,18 @@ function wrap(socket) {
   return new wrapper();
 }
 
-function Pool() {
+function Pool(createFunc) {
   this.sockets = {};
+  this.createFunc = createFunc;
 }
 
 Pool.prototype.create = function(wsurl) {
   var socket = this.sockets[wsurl];
   if (!socket) {
-    this.sockets[wsurl] = socket = pooledSocket(websocket.create(wsurl));
+    this.sockets[wsurl] = socket = pooledSocket(this.createFunc(wsurl));
   }
   socket.addRef();
   return wrap(socket);
 }
 
-exports.createPool = function() {
-  return new Pool();
-}
+exports.Pool = Pool;
