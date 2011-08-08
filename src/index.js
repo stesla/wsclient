@@ -15,8 +15,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var websocket = require("websocket");
-var pool = require("pool");
+var websocket = require("./websocket");
+var pool = require("./pool");
 var _ = require("underscore");
 
 exports.create = function(wsurl) {
