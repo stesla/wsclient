@@ -34,6 +34,7 @@ var WebSocket = function(wsurl) {
 
   this.url = this.URL = wsurl;
   this.readyState = CONNECTING;
+  this._shouldConnect = true;
 
   var urlParts = url.parse(wsurl), defaultPort;
   this.host = urlParts.hostname;
@@ -67,8 +68,11 @@ var WebSocket = function(wsurl) {
 sys.inherits(WebSocket, events.EventEmitter);
 
 WebSocket.prototype.connect = function() {
+  if (!this._shouldConnect) { return; }
+  this._shouldConnect = false;
   var self = this;
   var socket = helper.createSocket();
+  this.socket = socket;
   var protocol = helper.defaultProtocol();
   this.protocol = protocol;
   protocol.socket = socket;
@@ -84,8 +88,16 @@ WebSocket.prototype.connect = function() {
 };
 
 WebSocket.prototype._doClose = function(wasClean, reason, code) {
-  this.emit("close", wasClean, reason, code);
+  var self = this;
+  _.each(["close", "closing", "error", "message", "open"], function(e) {
+    self.protocol.removeAllListeners(e);
+  });
+  _.each(["connect", "close", "error"], function(e) {
+    self.socket.removeAllListeners(e);
+  });
+  this._shouldConnect = true;
   this.readyState = CLOSED;
+  this.emit("close", wasClean, reason, code);
 };
 
 WebSocket.prototype._doClosing = function() {
@@ -98,8 +110,8 @@ WebSocket.prototype._doError = function(error) {
 };
 
 WebSocket.prototype._doOpen = function() {
-  this.emit("open");
   this.readyState = OPEN;
+  this.emit("open");
 };
 
 WebSocket.prototype._doMessage = function(data) {

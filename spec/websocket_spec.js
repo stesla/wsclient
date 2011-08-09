@@ -187,6 +187,46 @@ describe("wsclient.create", function() {
         ws.close();
         expect(protocol.clientClose).toHaveBeenCalled();
       });
+
+      it("should not connect while it is already connecting", function() {
+        ws.connect();
+        expect(socket.connect.callCount).toBe(1);
+      });
+
+      it("should do nothing if connect is called while the socket is open", function() {
+        socket.emit("open");
+        ws.connect();
+        expect(socket.connect.callCount).toBe(1);
+      });
+
+      it("should not connect if connect is called while it is CLOSING", function() {
+        protocol.emit("closing");
+        ws.connect();
+        expect(socket.connect.callCount).toBe(1);
+      });
+
+      describe("after it is closed", function() {
+        beforeEach(function() {
+          socket.emit("close");
+        });
+
+        it("should connect if connect is called while it is CLOSED", function() {
+          ws.connect();
+          expect(socket.connect.callCount).toBe(2);
+        });
+
+        it("should remove all events from its socket after it fires its close event", function() {
+          _.each(["connect", "close", "error"], function(e) {
+            expect(socket.listeners(e)).toEqual([]);
+          });
+        });
+
+        it("should remove all events from the protocol after it fires its close event", function() {
+          _.each(["close", "closing", "error", "message", "open"], function(e) {
+            expect(protocol.listeners(e)).toEqual([]);
+          });
+        });
+      });
     });
   });
 });
