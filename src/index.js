@@ -17,15 +17,20 @@
 
 var websocket = require("./websocket");
 var pool = require("./pool");
+var reconnect = require("./reconnect");
 var _ = require("underscore");
 
 exports.create = function(wsurl) {
   return new websocket.WebSocket(wsurl);
-}
+};
 _.each(["CONNECTING", "CLOSED", "CLOSING", "OPEN"], function(state) {
   exports[state] = websocket[state];
-})
+});
 
 exports.createPool = function(createFunc) {
   return new pool.Pool(createFunc);
-}
+};
+
+exports.reconnect = function(socket, defaultTimeout) {
+  return reconnect.wrap(socket, defaultTimeout);
+};

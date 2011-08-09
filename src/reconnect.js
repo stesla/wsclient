@@ -1,0 +1,71 @@
+/*
+ * Copyright 2011, Saumel Tesla <samuel.tesla@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+var events = require("events");
+var _ = require("underscore");
+
+function Reconnect(socket, defaultTimeout) {
+  this.timeout = defaultTimeout;
+  var self = this;
+  
+  self.socket = socket;
+
+  _.each(_.functions(Object.getPrototypeOf(socket)), function(m) {
+    if (_.include(["close", "connect"], m)) { return; }
+    self[m] = _.wrap(socket[m], function(f) {
+      var args = _.toArray(arguments).slice(1);
+      f.apply(socket, args);
+    });
+  });
+  self.connect = _.wrap(socket.connect, function(f) {
+    this.up = true;
+    f.apply(self, []);
+  });
+  self.close = _.wrap(socket.close, function(f) {
+    if (this.reconnectTimer) { clearTimeout(this.reconnectTimer); }
+    this.up = false;
+    f.apply(self, []);
+  });
+
+  self.emitter = new events.EventEmitter();
+  _.each(_.functions(events.EventEmitter.prototype), function(m) {
+    self[m] = _.wrap(socket[m], function(f, e) {
+      var args = _.toArray(arguments).slice(1);
+      if (_.include(["close", "error", "reconnecting"], e)) {
+        self.emitter[m].apply(self.emitter, args);
+      } else {
+        f.apply(socket, args);
+      }
+    });
+  });
+  socket.on("close", function(wasClean, reason, code) { 
+    if (self.up) { self.reconnect(reason); }
+  });
+  socket.on("error", function() { /* errors MUST emit close events */ });
+}
+
+Reconnect.prototype.reconnect = function(reason) {
+  this.emitter.emit("reconnecting", reason, this.timeout);
+  this.reconnectTimer = setTimeout(_.bind(function() {
+    this.timeout *= 2;
+    this.socket.connect();
+  }, this), this.timeout);
+}
+
+exports.wrap = function(socket, defaultTimeout) {
+  return new Reconnect(socket, defaultTimeout);
+}

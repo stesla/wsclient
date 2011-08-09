@@ -12,5 +12,7 @@ wsclient = require('index');
 
 jasmine.getEnv().beforeEach(function(){
   spyOn(process, 'nextTick');
+  spyOn(global, 'clearTimeout');
+  spyOn(global, 'setTimeout');
 });
 
