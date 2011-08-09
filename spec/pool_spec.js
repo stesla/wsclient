@@ -19,13 +19,11 @@ describe("pool", function() {
   var pool, pws, ws, closeSpy, sendSpy;
   beforeEach(function() {
     _.each(_.functions(websocket.WebSocket.prototype), function(m) {
-      spyOn(websocket.WebSocket.prototype, m).andCallThrough();
+      spyOn(websocket.WebSocket.prototype, m);
     })
     ws = new websocket.WebSocket("ws://example.com");
     closeSpy = ws.close;
-    closeSpy.andCallFake(function() {});
     sendSpy = ws.send;
-    sendSpy.andCallFake(function() {});
     spyOn(wsclient, "create").andReturn(ws);
     pool = wsclient.createPool();
     pws = pool.create("ws://example.com");

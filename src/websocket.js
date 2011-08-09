@@ -18,6 +18,7 @@
 var events = require('events');
 var sys = require('sys');
 var url = require('url');
+var _ = require("underscore");
 
 var helper = require('./helper');
 
@@ -48,6 +49,19 @@ var WebSocket = function(wsurl) {
   this.resource = urlParts.pathname || "/";
 
   var self = this;
+  this.emit = _.wrap(this.emit, function(f, type) {
+    try {
+      var args = _.toArray(arguments).slice(1);
+      f.apply(self, args);
+    } catch(e) {
+      if (type === "error") {
+        throw e;
+      } else {
+        f.apply(self, ["error", e]);
+      }
+    }
+  });
+
   process.nextTick(function() { self.connect(); });
 };
 sys.inherits(WebSocket, events.EventEmitter);
@@ -68,18 +82,6 @@ WebSocket.prototype.connect = function() {
   protocol.on("open", function() { self._doOpen(); });
   socket.connect(this.port, this.host);
 };
-
-WebSocket.prototype.emit = function(type) {
-  try {
-    events.EventEmitter.prototype.emit.apply(this, arguments);
-  } catch (e) {
-    if (type === "error") {
-      throw e
-    } else {
-      this.emit("error", e);
-    }
-  }
-}
 
 WebSocket.prototype._doClose = function(wasClean, reason, code) {
   this.emit("close", wasClean, reason, code);
