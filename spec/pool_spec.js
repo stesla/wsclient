@@ -16,30 +16,29 @@
  */
 
 describe("pool", function() {
-  var pool, pws, ws, closeSpy, sendSpy;
+  var url = "ws://example.com";
+
+  var create, pool, proto, pws, ws;
   beforeEach(function() {
-    _.each(_.functions(websocket.WebSocket.prototype), function(m) {
-      spyOn(websocket.WebSocket.prototype, m);
-    })
-    ws = new websocket.WebSocket("ws://example.com");
-    closeSpy = ws.close;
-    sendSpy = ws.send;
-    spyOn(wsclient, "create").andReturn(ws);
-    pool = wsclient.createPool();
-    pws = pool.create("ws://example.com");
+    proto = websocket.WebSocket.prototype;
+    _.each(_.functions(proto), function(m) { spyOn(proto, m); });
+    create = jasmine.createSpy('create').andCallFake(function(wsurl) {
+      ws = new websocket.WebSocket(wsurl);
+      return ws;
+    });
+    pool = wsclient.createPool(create);
+    pws = pool.create(url);
   });
 
-  it("boo", function() {});
-
   it("creates a websocket", function() {
-    expect(wsclient.create).toHaveBeenCalledWith("ws://example.com");
+    expect(create).toHaveBeenCalledWith(url);
   });
 
   it("does not create a websocket for a second client", function() {
-    wsclient.create.reset();
-    var pws2 = pool.create("ws://example.com");
+    create.reset();
+    var pws2 = pool.create(url);
     expect(pws2).toBeDefined();
-    expect(wsclient.create).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
   });
 
   it("emits events", function() {
@@ -59,7 +58,7 @@ describe("pool", function() {
 
   it("sends data", function() {
     pws.send("foo");
-    expect(sendSpy).toHaveBeenCalled();
+    expect(proto.send).toHaveBeenCalled();
   });
 
   describe("closing with only one client", function() {
@@ -71,7 +70,7 @@ describe("pool", function() {
     });
 
     it("closes the websocket", function() {
-      expect(closeSpy).toHaveBeenCalled();
+      expect(proto.close).toHaveBeenCalled();
     });
 
     it("emits a close event", function() {
@@ -86,7 +85,7 @@ describe("pool", function() {
   describe("closing with more than one client", function() {
     var spy1, spy2, pws2;
     beforeEach(function() {
-      pws2 = pool.create("ws://example.com");
+      pws2 = pool.create(url);
       spy2 = jasmine.createSpy("pws2.close");
       pws2.on("close", spy2);
       spy1 = jasmine.createSpy("pws.close");
@@ -95,7 +94,7 @@ describe("pool", function() {
     });
 
     it("does not close the websocket", function() {
-      expect(closeSpy).not.toHaveBeenCalled();
+      expect(proto.close).not.toHaveBeenCalled();
     });
 
     it("emits a close event to the sender", function() {

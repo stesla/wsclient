@@ -26,6 +26,6 @@ _.each(["CONNECTING", "CLOSED", "CLOSING", "OPEN"], function(state) {
   exports[state] = websocket[state];
 })
 
-exports.createPool = function() {
-  return new pool.Pool(exports.create);
+exports.createPool = function(createFunc) {
+  return new pool.Pool(createFunc);
 }
