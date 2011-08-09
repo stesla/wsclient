@@ -6,4 +6,11 @@ require.paths.unshift(path.join(specDir, "../src"));
 _ = require("underscore");
 events = require("events");
 helper = require("helper");
+sys = require("sys");
+websocket = require('websocket');
 wsclient = require('index');
+
+jasmine.getEnv().beforeEach(function(){
+  spyOn(process, 'nextTick');
+});
+

@@ -21,10 +21,6 @@ var net = require('net');
 //   void close(in optional unsigned long code, in optional DOMString reason);
 
 describe("wsclient.create", function() {
-  beforeEach(function() {
-    spyOn(process, 'nextTick');
-  });
-
   describe("contructor", function() {
     var ws;
     it("should accept ws as a valid URL scheme", function() {

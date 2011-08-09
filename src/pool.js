@@ -12,7 +12,6 @@ function pooledSocket(socket) {
   return socket;
 }
 
-
 function Wrapper(socket) {
   var self = this;
   self.emitter = new events.EventEmitter();
@@ -23,7 +22,7 @@ function Wrapper(socket) {
       f.apply(socket, args);
     });
   });
-  _.each(_.functions(socket), function(m) {
+  _.each(_.functions(Object.getPrototypeOf(socket)), function(m) {
     self[m] = _.wrap(socket[m], function(f) {
       var args = _.toArray(arguments).slice(1);
       f.apply(socket, args);
@@ -37,7 +36,6 @@ function Wrapper(socket) {
     self.emitter.emit("close");
   });
 };
-
 
 function Pool(createFunc) {
   this.sockets = {};
