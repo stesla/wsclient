@@ -25,8 +25,9 @@ function Wrapper(socket) {
       f.apply(socket, args);
     });
   });
-  var fs = _.functions(Object.getPrototypeOf(socket)).concat(_.functions(socket));
-  _.each(fs, function(m) {
+  var protoMethods = _.functions(Object.getPrototypeOf(socket));
+  var objectMethods = _.functions(socket);
+  _.each(protoMethods.concat(objectMethods), function(m) {
     self[m] = _.wrap(socket[m], function(f) {
       var args = _.toArray(arguments).slice(1);
       f.apply(socket, args);

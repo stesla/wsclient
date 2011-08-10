@@ -18,12 +18,13 @@
 describe("pool", function() {
   var url = "ws://example.com";
 
-  var create, pool, proto, pws, ws;
+  var create, pool, proto, pws, ws, fooSpy;
   beforeEach(function() {
     proto = websocket.WebSocket.prototype;
     _.each(_.functions(proto), function(m) { spyOn(proto, m); });
     create = jasmine.createSpy('create').andCallFake(function(wsurl) {
       ws = new websocket.WebSocket(wsurl);
+      ws.foo = fooSpy = jasmine.createSpy("ws.foo");
       return ws;
     });
     pool = wsclient.pool(create);
@@ -60,6 +61,11 @@ describe("pool", function() {
   it("sends data", function() {
     pws.send("foo");
     expect(proto.send).toHaveBeenCalled();
+  });
+
+  it("wraps methods directly on the object", function() {
+    pws.foo();
+    expect(fooSpy).toHaveBeenCalled();
   });
 
   describe("closing with only one client", function() {
