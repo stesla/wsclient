@@ -26,7 +26,7 @@ describe("pool", function() {
       ws = new websocket.WebSocket(wsurl);
       return ws;
     });
-    pool = wsclient.createPool(create);
+    pool = wsclient.pool(create);
     pws = pool.create(url);
   });
 

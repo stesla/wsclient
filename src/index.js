@@ -20,14 +20,14 @@ var pool = require("./pool");
 var reconnect = require("./reconnect");
 var _ = require("underscore");
 
-exports.create = function(wsurl) {
+exports.websocket = function(wsurl) {
   return new websocket.WebSocket(wsurl);
 };
 _.each(["CONNECTING", "CLOSED", "CLOSING", "OPEN"], function(state) {
   exports[state] = websocket[state];
 });
 
-exports.createPool = function(createFunc) {
+exports.pool = function(createFunc) {
   return new pool.Pool(createFunc);
 };
 

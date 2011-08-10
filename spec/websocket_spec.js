@@ -20,31 +20,31 @@ var net = require('net');
 //   readonly attribute unsigned long bufferedAmount;
 //   void close(in optional unsigned long code, in optional DOMString reason);
 
-describe("wsclient.create", function() {
+describe("wsclient.websocket", function() {
   describe("contructor", function() {
     var ws;
     it("should accept ws as a valid URL scheme", function() {
-      expect(function() {ws = wsclient.create("ws://example.com"); }).not.toThrow("SYNTAX_ERR");
+      expect(function() {ws = wsclient.websocket("ws://example.com"); }).not.toThrow("SYNTAX_ERR");
       expect(ws.port).toBe("80");
       expect(ws.defaultPort).toBe("80");
     });
 
     it("should accept wss as a valid URL scheme", function() {
-      expect(function() {ws = wsclient.create("wss://example.com"); }).not.toThrow("SYNTAX_ERR");
+      expect(function() {ws = wsclient.websocket("wss://example.com"); }).not.toThrow("SYNTAX_ERR");
       expect(ws.port).toBe("443");
       expect(ws.defaultPort).toBe("443");
     });
 
     it("should accept port numbers", function() {
-      expect(function() {ws = wsclient.create("ws://example.com:8080"); }).not.toThrow("SYNTAX_ERR");
+      expect(function() {ws = wsclient.websocket("ws://example.com:8080"); }).not.toThrow("SYNTAX_ERR");
       expect(ws.port).toBe("8080");
       expect(ws.defaultPort).toBe("80");
     });
 
     it("should not accept anything except ws or wss as a valid URL scheme", function() {
-      expect(function() {ws = wsclient.create("http://example.com"); }).toThrow("SYNTAX_ERR");
-      expect(function() {ws = wsclient.create("ftp://example.com"); }).toThrow("SYNTAX_ERR");
-      expect(function() {ws = wsclient.create("foo://example.com"); }).toThrow("SYNTAX_ERR");
+      expect(function() {ws = wsclient.websocket("http://example.com"); }).toThrow("SYNTAX_ERR");
+      expect(function() {ws = wsclient.websocket("ftp://example.com"); }).toThrow("SYNTAX_ERR");
+      expect(function() {ws = wsclient.websocket("foo://example.com"); }).toThrow("SYNTAX_ERR");
     });
   });
 
@@ -59,7 +59,7 @@ describe("wsclient.create", function() {
       spyOn(helper, 'createSocket').andReturn(socket);
       spyOn(helper, 'defaultProtocol').andReturn(protocol);
       spy = jasmine.createSpyObj("spy", ["open", "message", "close", "error"]);
-      ws = wsclient.create("ws://example.com");
+      ws = wsclient.websocket("ws://example.com");
       ws.on("close", spy.close);
       ws.on("message", spy.message);
       ws.on("open", spy.open);
