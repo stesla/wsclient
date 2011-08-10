@@ -20,7 +20,11 @@ describe("reconnect", function() {
   var proto, ws, rws, spies;
   beforeEach(function() {
     proto = websocket.WebSocket.prototype;
-    _.each(_.functions(proto), function(m) { spyOn(proto, m); });
+    var emitterMethods = _.functions(events.EventEmitter.prototype);
+    _.each(_.functions(proto), function(m) { 
+      if (_.include(emitterMethods, m)) { return; }
+      spyOn(proto, m);
+    });
     ws = new websocket.WebSocket("ws://example.com");
     rws = wsclient.reconnect(ws, defaultTimeout);
     spies = {};

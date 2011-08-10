@@ -17,17 +17,18 @@ function pooledSocket(socket) {
 
 function Wrapper(socket) {
   var self = this;
+  var emitterMethods = _.functions(events.EventEmitter.prototype);
+
   self.emitter = new events.EventEmitter();
-  _.each(_.functions(events.EventEmitter.prototype), function(m) {
+  _.each(emitterMethods, function(m) {
     self[m] = _.wrap(socket[m], function(f, e) {
       var args = _.toArray(arguments).slice(1);
       if (e === "close") { self.emitter[m].apply(self.emitter, args); }
       f.apply(socket, args);
     });
   });
-  var protoMethods = _.functions(Object.getPrototypeOf(socket));
-  var objectMethods = _.functions(socket);
-  _.each(protoMethods.concat(objectMethods), function(m) {
+
+  _.each(_.difference(_.functions(socket), emitterMethods), function(m) {
     self[m] = _.wrap(socket[m], function(f) {
       var args = _.toArray(arguments).slice(1);
       f.apply(socket, args);

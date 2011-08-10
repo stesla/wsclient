@@ -21,6 +21,7 @@ var _ = require("underscore");
 function Reconnect(socket, defaultTimeout) {
   this.timeout = defaultTimeout;
   var self = this;
+  var emitterMethods = _.functions(events.EventEmitter.prototype);
   
   self.socket = socket;
 
@@ -29,7 +30,7 @@ function Reconnect(socket, defaultTimeout) {
   socket.on("close", onClose);
   socket.on("error", function() { /* errors MUST emit close events */ });
 
-  _.each(_.functions(Object.getPrototypeOf(socket)), function(m) {
+  _.each(_.difference(_.functions(socket), emitterMethods), function(m) {
     if (_.include(["close", "connect"], m)) { return; }
     self[m] = _.wrap(socket[m], function(f) {
       var args = _.toArray(arguments).slice(1);
@@ -50,7 +51,7 @@ function Reconnect(socket, defaultTimeout) {
   });
 
   self.emitter = new events.EventEmitter();
-  _.each(_.functions(events.EventEmitter.prototype), function(m) {
+  _.each(emitterMethods, function(m) {
     self[m] = _.wrap(socket[m], function(f, e) {
       var args = _.toArray(arguments).slice(1);
       if (_.include(["close", "error", "reconnecting"], e)) {

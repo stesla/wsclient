@@ -15,4 +15,3 @@ jasmine.getEnv().beforeEach(function(){
   spyOn(global, 'clearTimeout');
   spyOn(global, 'setTimeout');
 });
-

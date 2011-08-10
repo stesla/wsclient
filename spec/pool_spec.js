@@ -21,7 +21,11 @@ describe("pool", function() {
   var create, pool, proto, pws, ws, fooSpy;
   beforeEach(function() {
     proto = websocket.WebSocket.prototype;
-    _.each(_.functions(proto), function(m) { spyOn(proto, m); });
+    var emitterMethods = _.functions(events.EventEmitter.prototype);
+    _.each(_.functions(proto), function(m) { 
+      if (_.include(emitterMethods, m)) { return; }
+      spyOn(proto, m);
+    });
     create = jasmine.createSpy('create').andCallFake(function(wsurl) {
       ws = new websocket.WebSocket(wsurl);
       ws.foo = fooSpy = jasmine.createSpy("ws.foo");
