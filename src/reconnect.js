@@ -24,6 +24,11 @@ function Reconnect(socket, defaultTimeout) {
   
   self.socket = socket;
 
+  var onClose = function(_clean, reason) { self.reconnect(reason); };
+
+  socket.on("close", onClose);
+  socket.on("error", function() { /* errors MUST emit close events */ });
+
   _.each(_.functions(Object.getPrototypeOf(socket)), function(m) {
     if (_.include(["close", "connect"], m)) { return; }
     self[m] = _.wrap(socket[m], function(f) {
@@ -32,12 +37,15 @@ function Reconnect(socket, defaultTimeout) {
     });
   });
   self.connect = _.wrap(socket.connect, function(f) {
-    this.up = true;
     f.apply(socket, []);
   });
   self.close = _.wrap(socket.close, function(f) {
     if (this.reconnectTimer) { clearTimeout(this.reconnectTimer); }
-    this.up = false;
+    socket.removeListener("close", onClose);
+    socket.addListener("close", function() {
+      var args = ["close"].concat(_.toArray(arguments));
+      self.emitter.emit.apply(self.emitter, args);
+    });
     f.apply(socket, []);
   });
 
@@ -52,10 +60,6 @@ function Reconnect(socket, defaultTimeout) {
       }
     });
   });
-  socket.on("close", function(wasClean, reason, code) { 
-    if (self.up) { self.reconnect(reason); }
-  });
-  socket.on("error", function() { /* errors MUST emit close events */ });
 }
 
 Reconnect.prototype.reconnect = function(reason) {

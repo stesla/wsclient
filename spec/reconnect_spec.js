@@ -94,4 +94,10 @@ describe("reconnect", function() {
     ws.emit("close");
     expect(setTimeout).not.toHaveBeenCalled();
   });
+
+  it("emits a close event when it is closed", function() {
+    rws.close();
+    ws.emit("close", true, "reason", 42);
+    expect(spies.close).toHaveBeenCalledWith(true, "reason", 42);
+  });
 });
