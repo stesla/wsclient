@@ -33,12 +33,12 @@ function Reconnect(socket, defaultTimeout) {
   });
   self.connect = _.wrap(socket.connect, function(f) {
     this.up = true;
-    f.apply(self, []);
+    f.apply(socket, []);
   });
   self.close = _.wrap(socket.close, function(f) {
     if (this.reconnectTimer) { clearTimeout(this.reconnectTimer); }
     this.up = false;
-    f.apply(self, []);
+    f.apply(socket, []);
   });
 
   self.emitter = new events.EventEmitter();

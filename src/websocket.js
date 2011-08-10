@@ -62,8 +62,6 @@ var WebSocket = function(wsurl) {
       }
     }
   });
-
-  process.nextTick(function() { self.connect(); });
 };
 sys.inherits(WebSocket, events.EventEmitter);
 

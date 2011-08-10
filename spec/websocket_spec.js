@@ -74,10 +74,6 @@ describe("wsclient.websocket", function() {
       expect(ws.url).toEqual("ws://example.com");
     });
 
-    it("should connect in the background", function() {
-      expect(process.nextTick).toHaveBeenCalled();
-    });
-
     describe("when errors in callbacks occur", function() {
       var error, makeError = function() { throw error; }
 

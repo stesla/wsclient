@@ -4,10 +4,13 @@ var _ = require("underscore");
 
 function pooledSocket(socket) {
   var count = 0;
-  socket.addRef = function() { count++; };
-  socket.close = _.wrap(_.bind(socket.close, socket), function(f) {
+  socket.connect = _.wrap(socket.connect, function(f) {
+    if (count === 0) { f.apply(socket, []); }
+    count++;
+  });
+  socket.close = _.wrap(socket.close, function(f) {
     count--;
-    if (count === 0) { f(); }
+    if (count === 0) { f.apply(socket, []); }
   });
   return socket;
 }
@@ -22,7 +25,8 @@ function Wrapper(socket) {
       f.apply(socket, args);
     });
   });
-  _.each(_.functions(Object.getPrototypeOf(socket)), function(m) {
+  var fs = _.functions(Object.getPrototypeOf(socket)).concat(_.functions(socket));
+  _.each(fs, function(m) {
     self[m] = _.wrap(socket[m], function(f) {
       var args = _.toArray(arguments).slice(1);
       f.apply(socket, args);
@@ -47,7 +51,6 @@ Pool.prototype.create = function(wsurl) {
   if (!socket) {
     this.sockets[wsurl] = socket = pooledSocket(this.createFunc(wsurl));
   }
-  socket.addRef();
   return new Wrapper(socket);
 }
 

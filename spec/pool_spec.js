@@ -28,6 +28,7 @@ describe("pool", function() {
     });
     pool = wsclient.pool(create);
     pws = pool.create(url);
+    pws.connect();
   });
 
   it("creates a websocket", function() {
@@ -86,6 +87,7 @@ describe("pool", function() {
     var spy1, spy2, pws2;
     beforeEach(function() {
       pws2 = pool.create(url);
+      pws2.connect();
       spy2 = jasmine.createSpy("pws2.close");
       pws2.on("close", spy2);
       spy1 = jasmine.createSpy("pws.close");
