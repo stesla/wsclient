@@ -26,9 +26,9 @@ function Reconnect(socket, defaultTimeout) {
   self.socket = socket;
 
   var onClose = function(_clean, reason) { self.reconnect(reason); };
-
   socket.on("close", onClose);
   socket.on("error", function() { /* errors MUST emit close events */ });
+  socket.on("open", function() { self.timeout = defaultTimeout; });
 
   _.each(_.difference(_.functions(socket), emitterMethods), function(m) {
     if (_.include(["close", "connect"], m)) { return; }

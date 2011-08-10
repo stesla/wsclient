@@ -91,6 +91,15 @@ describe("reconnect", function() {
       rws.close();
       expect(clearTimeout).toHaveBeenCalledWith(timer);
     });
+
+    it("resets the timeout after a successful reconnect", function() {
+      setTimeout.argsForCall[0][0]();
+      ws.emit("close");
+      setTimeout.argsForCall[1][0]();
+      ws.emit("open");
+      ws.emit("close");
+      expect(setTimeout.argsForCall[2][1]).toBe(defaultTimeout);
+    });
   });
 
   it("does not reconnect if it has been closed", function() {
