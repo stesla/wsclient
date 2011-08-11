@@ -72,6 +72,16 @@ describe("pool", function() {
     expect(fooSpy).toHaveBeenCalled();
   });
 
+  it("sythesizes an open event to new clients after it is connected", function() {
+    ws.emit("open");
+    ws.isOpen.andReturn(true);
+    var pws2 = pool.create(url);
+    var spy = jasmine.createSpy("listener");
+    pws2.on("open", spy);
+    pws2.connect();
+    expect(spy).toHaveBeenCalled();
+  });
+
   describe("closing with only one client", function() {
     var spy;
     beforeEach(function() {

@@ -125,4 +125,8 @@ WebSocket.prototype.send = function(msg) {
   this.protocol.send(msg);
 };
 
+WebSocket.prototype.isOpen = function(msg) {
+  return this.readyState === OPEN;
+};
+
 exports.WebSocket = WebSocket;

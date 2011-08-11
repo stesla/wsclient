@@ -1,6 +1,7 @@
 var events = require("events");
 var sys = require("sys");
 var util = require("./util");
+var wsclient = require("./websocket");
 var _ = require("underscore");
 
 function pooledSocket(socket) {
@@ -24,7 +25,7 @@ function Wrapper(socket) {
   _.each(emitterMethods, function(m) {
     self[m] = _.wrap(socket[m], function(f, e) {
       var args = _.toArray(arguments).slice(1);
-      if (e === "close") { self.emitter[m].apply(self.emitter, args); }
+      if (_.include(["close", "open"], e)) { self.emitter[m].apply(self.emitter, args); }
       f.apply(socket, args);
     });
   });
@@ -34,6 +35,10 @@ function Wrapper(socket) {
     });
     f.apply(socket, []);
     self.emitter.emit("close");
+  });
+  self.connect = _.wrap(socket.connect, function(f) {
+    if (socket.isOpen()) { self.emitter.emit("open"); }
+    f.apply(socket, []);
   });
 };
 
