@@ -16,13 +16,15 @@
  */
 
 var events = require("events");
+var util = require("./util");
 var _ = require("underscore");
 
 function Reconnect(socket, defaultTimeout) {
   this.timeout = defaultTimeout;
   var self = this;
   var emitterMethods = _.functions(events.EventEmitter.prototype);
-  
+  util.delegate(this, socket);
+
   self.socket = socket;
 
   var onClose = function(_clean, reason) { self.reconnect(reason); };
@@ -30,13 +32,6 @@ function Reconnect(socket, defaultTimeout) {
   socket.on("error", function() { /* errors MUST emit close events */ });
   socket.on("open", function() { self.timeout = defaultTimeout; });
 
-  _.each(_.difference(_.functions(socket), emitterMethods), function(m) {
-    if (_.include(["close", "connect"], m)) { return; }
-    self[m] = _.wrap(socket[m], function(f) {
-      var args = _.toArray(arguments).slice(1);
-      f.apply(socket, args);
-    });
-  });
   self.connect = _.wrap(socket.connect, function(f) {
     f.apply(socket, []);
   });

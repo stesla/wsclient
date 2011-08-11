@@ -1,5 +1,6 @@
 var events = require("events");
 var sys = require("sys");
+var util = require("./util");
 var _ = require("underscore");
 
 function pooledSocket(socket) {
@@ -18,19 +19,12 @@ function pooledSocket(socket) {
 function Wrapper(socket) {
   var self = this;
   var emitterMethods = _.functions(events.EventEmitter.prototype);
-
+  util.delegate(this, socket);
   self.emitter = new events.EventEmitter();
   _.each(emitterMethods, function(m) {
     self[m] = _.wrap(socket[m], function(f, e) {
       var args = _.toArray(arguments).slice(1);
       if (e === "close") { self.emitter[m].apply(self.emitter, args); }
-      f.apply(socket, args);
-    });
-  });
-
-  _.each(_.difference(_.functions(socket), emitterMethods), function(m) {
-    self[m] = _.wrap(socket[m], function(f) {
-      var args = _.toArray(arguments).slice(1);
       f.apply(socket, args);
     });
   });
